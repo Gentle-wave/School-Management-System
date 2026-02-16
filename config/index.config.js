@@ -3,7 +3,7 @@ const pjson = require('../package.json');
 
 const SERVICE_NAME = process.env.SERVICE_NAME || pjson.name;
 const PORT = process.env.PORT || 3000;
-const ENV = process.env.ENV || 'development';
+const ENV = process.env.NODE_ENV || process.env.ENV || 'development';
 const REDIS_URI = process.env.REDIS_URI || 'redis://127.0.0.1:6379';
 
 const CACHE_REDIS = process.env.CACHE_REDIS || REDIS_URI;

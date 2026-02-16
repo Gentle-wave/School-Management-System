@@ -34,6 +34,9 @@ class App {
     // Global rate limiting
     this.app.use('/api', RateLimitMiddleware.createLimiter());
 
+    // Serve static files from public directory
+    this.app.use(express.static('public'));
+
     // Health check
     this.app.get('/health', (req, res) => {
       res.status(200).json({

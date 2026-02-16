@@ -7,16 +7,36 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            max-width: 800px;
+            max-width: 900px;
             margin: 50px auto;
             padding: 20px;
             line-height: 1.6;
             color: #333;
+            background: #f5f7fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         h1 {
             color: #2c3e50;
             border-bottom: 3px solid #3498db;
             padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        .base-url {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
         }
         .endpoint {
             background: #f8f9fa;
@@ -24,14 +44,21 @@
             margin: 10px 0;
             border-left: 4px solid #3498db;
             border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .endpoint:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateX(2px);
         }
         .method {
             display: inline-block;
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 3px;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 11px;
             margin-right: 10px;
+            min-width: 60px;
+            text-align: center;
         }
         .get { background: #61affe; color: white; }
         .post { background: #49cc90; color: white; }
@@ -42,71 +69,218 @@
             padding: 2px 6px;
             border-radius: 3px;
             font-family: 'Courier New', monospace;
+            font-size: 13px;
         }
         .status {
             display: inline-block;
-            padding: 2px 6px;
-            background: #28a745;
-            color: white;
+            padding: 3px 8px;
             border-radius: 3px;
-            font-size: 11px;
+            font-size: 10px;
             margin-left: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .public { background: #28a745; color: white; }
+        .protected { background: #dc3545; color: white; }
+        .superadmin { background: #6c757d; color: white; }
+        .endpoint p {
+            margin: 8px 0 0 0;
+            color: #555;
+        }
+        .section {
+            margin-top: 25px;
+        }
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
-    <h1>🏫 School Management System API</h1>
-    <p>Welcome to the School Management System API. This is a RESTful API built with Express.js, MongoDB, and Redis.</p>
-    
-    <h2>Quick Start</h2>
-    <p>Base URL: <code>http://localhost:3000/api</code></p>
-    
-    <h2>Available Endpoints</h2>
-    
-    <div class="endpoint">
-        <span class="method post">POST</span>
-        <code>/api/auth/register</code>
-        <span class="status">Public</span>
-        <p>Register a new user</p>
+    <div class="container">
+        <h1>🏫 School Management System API</h1>
+        <p>Welcome to the School Management System API. This is a RESTful API built with Express.js, MongoDB, and Redis.</p>
+        
+        <div class="base-url">
+            <strong>Base URL:</strong> <code id="baseUrl">Loading...</code>
+        </div>
+
+        <div class="note">
+            <strong>🔒 Authentication:</strong> Protected endpoints require a JWT token in the Authorization header: <code>Bearer &lt;token&gt;</code>
+        </div>
+        
+        <div class="section">
+            <h2>🔐 Authentication Endpoints</h2>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <code>/api/auth/register</code>
+                <span class="status public">Public</span>
+                <p>Register a new user account (superadmin or school_administrator)</p>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <code>/api/auth/login</code>
+                <span class="status public">Public</span>
+                <p>Login with email and password to receive JWT token</p>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/api/auth/profile</code>
+                <span class="status protected">Protected</span>
+                <p>Get current user profile information</p>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <code>/api/auth/profile</code>
+                <span class="status protected">Protected</span>
+                <p>Update current user profile</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🏫 School Endpoints</h2>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <code>/api/schools</code>
+                <span class="status superadmin">Superadmin</span>
+                <p>Create a new school (requires superadmin permission)</p>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/api/schools</code>
+                <span class="status protected">Protected</span>
+                <p>List all schools with pagination and filtering (page, limit, search, isActive)</p>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/api/schools/:id</code>
+                <span class="status protected">Protected</span>
+                <p>Get a specific school by ID</p>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <code>/api/schools/:id</code>
+                <span class="status protected">Protected</span>
+                <p>Update a school by ID (requires permission)</p>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method delete">DELETE</span>
+                <code>/api/schools/:id</code>
+                <span class="status superadmin">Superadmin</span>
+                <p>Delete a school by ID (requires superadmin permission)</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🚪 Classroom Endpoints</h2>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <code>/api/classrooms</code>
+                <span class="status protected">Protected</span>
+                <p>Create a new classroom (requires school access)</p>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/api/classrooms</code>
+                <span class="status protected">Protected</span>
+                <p>List all classrooms with filtering (schoolId, gradeLevel, search, isActive)</p>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/api/classrooms/:id</code>
+                <span class="status protected">Protected</span>
+                <p>Get a specific classroom by ID (requires resource ownership)</p>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <code>/api/classrooms/:id</code>
+                <span class="status protected">Protected</span>
+                <p>Update a classroom by ID (requires resource ownership)</p>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method delete">DELETE</span>
+                <code>/api/classrooms/:id</code>
+                <span class="status protected">Protected</span>
+                <p>Delete a classroom by ID (requires resource ownership)</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>👨‍🎓 Student Endpoints</h2>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <code>/api/students</code>
+                <span class="status protected">Protected</span>
+                <p>Create a new student (requires school access)</p>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/api/students</code>
+                <span class="status protected">Protected</span>
+                <p>List all students with filtering (schoolId, classroomId, search, isActive)</p>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/api/students/:id</code>
+                <span class="status protected">Protected</span>
+                <p>Get a specific student by ID (requires resource ownership)</p>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <code>/api/students/:id</code>
+                <span class="status protected">Protected</span>
+                <p>Update a student by ID (requires resource ownership)</p>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method delete">DELETE</span>
+                <code>/api/students/:id</code>
+                <span class="status protected">Protected</span>
+                <p>Delete a student by ID (requires resource ownership)</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>💚 Health Check</h2>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/health</code>
+                <span class="status public">Public</span>
+                <p>Check API health status and server information</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📚 Documentation</h2>
+            <p>For complete API documentation including request/response examples, please refer to the <code>README.md</code> file in the repository.</p>
+        </div>
     </div>
-    
-    <div class="endpoint">
-        <span class="method post">POST</span>
-        <code>/api/auth/login</code>
-        <span class="status">Public</span>
-        <p>Login and get JWT token</p>
-    </div>
-    
-    <div class="endpoint">
-        <span class="method get">GET</span>
-        <code>/api/schools</code>
-        <span class="status">Protected</span>
-        <p>List all schools</p>
-    </div>
-    
-    <div class="endpoint">
-        <span class="method get">GET</span>
-        <code>/api/classrooms</code>
-        <span class="status">Protected</span>
-        <p>List all classrooms</p>
-    </div>
-    
-    <div class="endpoint">
-        <span class="method get">GET</span>
-        <code>/api/students</code>
-        <span class="status">Protected</span>
-        <p>List all students</p>
-    </div>
-    
-    <h2>Documentation</h2>
-    <p>For complete API documentation, please refer to the <code>README.md</code> file.</p>
-    
-    <h2>Health Check</h2>
-    <div class="endpoint">
-        <span class="method get">GET</span>
-        <code>/health</code>
-        <span class="status">Public</span>
-        <p>Check API health status</p>
-    </div>
+
+    <script>
+        // Dynamically set the base URL based on current location
+        const baseUrl = window.location.origin + '/api';
+        document.getElementById('baseUrl').textContent = baseUrl;
+    </script>
 </body>
 </html>

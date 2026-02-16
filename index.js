@@ -2,6 +2,39 @@ const config = require('./config/index.config');
 const ManagersLoader = require('./loaders/ManagersLoader');
 const App = require('./app');
 const mongoose = require('mongoose');
+const isTestEnv = config.dotEnv.ENV === 'test';
+
+const createNoopCache = () => ({
+  string: {
+    get: async () => null,
+    set: async () => true,
+    delete: async () => true,
+    exists: async () => false,
+    expire: async () => true,
+  },
+  hash: {
+    get: async () => ({}),
+    set: async () => true,
+    delete: async () => true,
+    incrby: async () => 0,
+    setField: async () => true,
+    getField: async () => null,
+    getFields: async () => ({}),
+  },
+  set: {
+    add: async () => true,
+    remove: async () => true,
+    get: async () => [],
+    has: async () => false,
+  },
+  sorted: {
+    get: async () => [],
+    update: async () => true,
+    set: async () => true,
+    incrBy: async () => true,
+    remove: async () => true,
+  },
+});
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
@@ -17,15 +50,19 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Initialize cache
-const cache = require('./cache/cache.dbh')({
-  prefix: config.dotEnv.CACHE_PREFIX,
-  url: config.dotEnv.CACHE_REDIS,
-});
+const cache = isTestEnv
+  ? createNoopCache()
+  : require('./cache/cache.dbh')({
+    prefix: config.dotEnv.CACHE_PREFIX,
+    url: config.dotEnv.CACHE_REDIS,
+  });
 
 // Initialize MongoDB connection
-const mongoDB = require('./connect/mongo')({
-  uri: config.dotEnv.MONGO_URI,
-});
+const mongoDB = isTestEnv
+  ? mongoose.connection
+  : require('./connect/mongo')({
+    uri: config.dotEnv.MONGO_URI,
+  });
 
 // Run seeds in development mode only
 if (config.dotEnv.ENV === 'development') {
@@ -57,25 +94,37 @@ const managers = managersLoader.load();
 const appInstance = new App({ managers });
 const app = appInstance.getApp();
 
-// Start server
-const PORT = config.dotEnv.PORT || 3000;
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📝 Environment: ${config.dotEnv.ENV}`);
-  console.log(`💾 MongoDB: ${config.dotEnv.MONGO_URI}`);
-  console.log(`🔴 Redis: ${config.dotEnv.CACHE_REDIS}`);
-});
+let server;
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
-    mongoDB.close(() => {
-      console.log('MongoDB connection closed');
-      process.exit(0);
+const startServer = () => {
+  if (server) {
+    return server;
+  }
+
+  const PORT = config.dotEnv.PORT || 3000;
+  server = app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📝 Environment: ${config.dotEnv.ENV}`);
+    console.log(`💾 MongoDB: ${config.dotEnv.MONGO_URI}`);
+    console.log(`🔴 Redis: ${config.dotEnv.CACHE_REDIS}`);
+  });
+
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM signal received: closing HTTP server');
+    server.close(() => {
+      console.log('HTTP server closed');
+      mongoDB.close(() => {
+        console.log('MongoDB connection closed');
+        process.exit(0);
+      });
     });
   });
-});
+
+  return server;
+};
+
+if (require.main === module && config.dotEnv.ENV !== 'test') {
+  startServer();
+}
 
 module.exports = app;

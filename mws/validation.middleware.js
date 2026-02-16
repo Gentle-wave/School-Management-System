@@ -2,22 +2,18 @@ const { validationResult } = require('express-validator');
 const { ValidationError } = require('../libs/errors');
 
 class ValidationMiddleware {
-  static validate(validations) {
-    return async (req, res, next) => {
-      await Promise.all(validations.map(validation => validation.run(req)));
+  static validate(req, res, next) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const errorMessages = errors.array().map(err => ({
+        field: err.path || err.param,
+        message: err.msg,
+        value: err.value,
+      }));
+      return next(new ValidationError('Validation failed', errorMessages));
+    }
 
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        const errorMessages = errors.array().map(err => ({
-          field: err.path || err.param,
-          message: err.msg,
-          value: err.value,
-        }));
-        return next(new ValidationError('Validation failed', errorMessages));
-      }
-
-      next();
-    };
+    next();
   }
 
   static sanitizeInput(req, res, next) {

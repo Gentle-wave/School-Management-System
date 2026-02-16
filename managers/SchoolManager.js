@@ -31,10 +31,12 @@ class SchoolManager {
       throw new NotFoundError('School');
     }
 
+    const schoolData = typeof school.toObject === 'function' ? school.toObject() : school;
+
     // Cache school data
     await this.cache.string.set({
       key: cacheKey,
-      data: JSON.stringify(school.toObject()),
+      data: JSON.stringify(schoolData),
       ttl: CACHE_TTL.MEDIUM,
     });
 
