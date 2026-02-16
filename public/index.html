@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Management System API</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .endpoint {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+        .method {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        .get { background: #61affe; color: white; }
+        .post { background: #49cc90; color: white; }
+        .put { background: #fca130; color: white; }
+        .delete { background: #f93e3e; color: white; }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .status {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #28a745;
+            color: white;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏫 School Management System API</h1>
+    <p>Welcome to the School Management System API. This is a RESTful API built with Express.js, MongoDB, and Redis.</p>
+    
+    <h2>Quick Start</h2>
+    <p>Base URL: <code>http://localhost:3000/api</code></p>
+    
+    <h2>Available Endpoints</h2>
+    
+    <div class="endpoint">
+        <span class="method post">POST</span>
+        <code>/api/auth/register</code>
+        <span class="status">Public</span>
+        <p>Register a new user</p>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method post">POST</span>
+        <code>/api/auth/login</code>
+        <span class="status">Public</span>
+        <p>Login and get JWT token</p>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <code>/api/schools</code>
+        <span class="status">Protected</span>
+        <p>List all schools</p>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <code>/api/classrooms</code>
+        <span class="status">Protected</span>
+        <p>List all classrooms</p>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <code>/api/students</code>
+        <span class="status">Protected</span>
+        <p>List all students</p>
+    </div>
+    
+    <h2>Documentation</h2>
+    <p>For complete API documentation, please refer to the <code>README.md</code> file.</p>
+    
+    <h2>Health Check</h2>
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <code>/health</code>
+        <span class="status">Public</span>
+        <p>Check API health status</p>
+    </div>
+</body>
+</html>
