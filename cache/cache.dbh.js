@@ -7,7 +7,6 @@ const keyCheck = (key) => {
 module.exports = ({ prefix, url }) => {
   if (!prefix || !url) throw new Error('missing in memory arguments');
 
-  /** creating redis client */
   const redisClient = require('./redis-client').createClient({
     prefix,
     url,

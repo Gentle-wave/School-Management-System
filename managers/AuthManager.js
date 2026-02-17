@@ -12,13 +12,11 @@ class AuthManager {
   async register(data) {
     const { email, password, role, schoolId } = data;
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       throw new ConflictError('User with this email already exists');
     }
 
-    // Validate role and schoolId relationship
     if (role === ROLES.SCHOOL_ADMINISTRATOR && !schoolId) {
       throw new AuthenticationError('School ID is required for school administrators');
     }
@@ -36,7 +34,6 @@ class AuthManager {
 
     await user.save();
 
-    // Invalidate cache
     await this.cache.string.delete({ key: `user:${user._id}` });
 
     return this._formatUserResponse(user);
@@ -54,11 +51,9 @@ class AuthManager {
       throw new AuthenticationError('Invalid credentials');
     }
 
-    // Update last login
     user.lastLogin = new Date();
     await user.save();
 
-    // Generate token
     const token = this._generateToken(user);
 
     return {
@@ -70,7 +65,6 @@ class AuthManager {
   async getProfile(userId) {
     const cacheKey = `user:${userId}`;
     
-    // Try cache first
     let user = await this.cache.string.get({ key: cacheKey });
     if (user) {
       return this._formatUserResponse(user);
@@ -81,7 +75,6 @@ class AuthManager {
       throw new NotFoundError('User');
     }
 
-    // Cache user data
     await this.cache.string.set({
       key: cacheKey,
       data: JSON.stringify(user.toObject()),
@@ -97,7 +90,6 @@ class AuthManager {
       throw new NotFoundError('User');
     }
 
-    // Only allow updating certain fields
     const allowedFields = ['email'];
     allowedFields.forEach(field => {
       if (data[field] !== undefined) {
@@ -107,7 +99,6 @@ class AuthManager {
 
     await user.save();
 
-    // Invalidate cache
     await this.cache.string.delete({ key: `user:${user._id}` });
 
     return this._formatUserResponse(user);

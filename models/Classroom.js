@@ -41,7 +41,6 @@ const classroomSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-// Virtual for available spots
 classroomSchema.virtual('availableSpots').get(function () {
   return Math.max(0, this.capacity - this.currentEnrollment);
 });
@@ -51,7 +50,6 @@ classroomSchema.index({ schoolId: 1, name: 1 }, { unique: true });
 classroomSchema.index({ schoolId: 1, isActive: 1 });
 classroomSchema.index({ gradeLevel: 1 });
 
-// Ensure virtuals are included in JSON
 classroomSchema.set('toJSON', { virtuals: true });
 
 module.exports = mongoose.model('Classroom', classroomSchema);

@@ -11,7 +11,6 @@ class SchoolManager {
     const school = new School(data);
     await school.save();
 
-    // Invalidate cache
     await this._invalidateCache();
 
     return school;
@@ -20,7 +19,6 @@ class SchoolManager {
   async getById(schoolId) {
     const cacheKey = `school:${schoolId}`;
 
-    // Try cache first
     let school = await this.cache.string.get({ key: cacheKey });
     if (school) {
       return school;
@@ -33,7 +31,6 @@ class SchoolManager {
 
     const schoolData = typeof school.toObject === 'function' ? school.toObject() : school;
 
-    // Cache school data
     await this.cache.string.set({
       key: cacheKey,
       data: JSON.stringify(schoolData),
@@ -49,7 +46,6 @@ class SchoolManager {
       throw new NotFoundError('School');
     }
 
-    // Update fields
     Object.keys(data).forEach(key => {
       if (data[key] !== undefined && key !== '_id' && key !== '__v') {
         if (typeof data[key] === 'object' && !Array.isArray(data[key])) {
@@ -62,7 +58,6 @@ class SchoolManager {
 
     await school.save();
 
-    // Invalidate cache
     await this._invalidateCache();
     await this.cache.string.delete({ key: `school:${schoolId}` });
 
@@ -75,7 +70,6 @@ class SchoolManager {
       throw new NotFoundError('School');
     }
 
-    // Check if school has classrooms or students
     const Classroom = require('../models/Classroom');
     const Student = require('../models/Student');
 
@@ -89,7 +83,6 @@ class SchoolManager {
     school.isActive = false;
     await school.save();
 
-    // Invalidate cache
     await this._invalidateCache();
     await this.cache.string.delete({ key: `school:${schoolId}` });
 

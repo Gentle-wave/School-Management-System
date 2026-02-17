@@ -17,7 +17,6 @@ class ValidationMiddleware {
   }
 
   static sanitizeInput(req, res, next) {
-    // Remove any undefined fields from body
     if (req.body) {
       Object.keys(req.body).forEach(key => {
         if (req.body[key] === undefined) {
@@ -26,7 +25,6 @@ class ValidationMiddleware {
       });
     }
 
-    // Trim string values
     const trimStrings = (obj) => {
       for (const key in obj) {
         if (typeof obj[key] === 'string') {

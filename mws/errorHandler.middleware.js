@@ -6,32 +6,27 @@ class ErrorHandlerMiddleware {
     let error = { ...err };
     error.message = err.message;
 
-    // Log error
     if (config.dotEnv.ENV === 'development') {
       console.error('Error:', err);
     }
 
-    // Mongoose bad ObjectId
     if (err.name === 'CastError') {
       const message = 'Resource not found';
       error = new AppError(message, 404, 'NOT_FOUND');
     }
 
-    // Mongoose duplicate key
     if (err.code === 11000) {
       const field = Object.keys(err.keyPattern)[0];
       const message = `${field} already exists`;
       error = new AppError(message, 409, 'DUPLICATE_ERROR');
     }
 
-    // Mongoose validation error
     if (err.name === 'ValidationError') {
       const messages = Object.values(err.errors).map(e => e.message);
       const message = `Validation Error: ${messages.join(', ')}`;
       error = new AppError(message, 400, 'VALIDATION_ERROR');
     }
 
-    // JWT errors
     if (err.name === 'JsonWebTokenError') {
       error = new AppError('Invalid token', 401, 'AUTHENTICATION_ERROR');
     }
@@ -52,7 +47,6 @@ class ErrorHandlerMiddleware {
       },
     };
 
-    // Include error details in development
     if (config.dotEnv.ENV === 'development') {
       response.error.stack = err.stack;
       if (error.errors) {
