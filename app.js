@@ -16,28 +16,20 @@ class App {
   }
 
   _setupMiddleware() {
-    // Security middleware
+
     this.app.use(helmet());
-
-    // CORS
     this.app.use(cors(config.cors));
-
-    // Body parser
     this.app.use(express.json({ limit: '10mb' }));
     this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-    // Logging
     if (config.dotEnv.ENV !== 'test') {
       this.app.use(morgan('combined'));
     }
 
-    // Global rate limiting
     this.app.use('/api', RateLimitMiddleware.createLimiter());
 
-    // Serve static files from public directory
     this.app.use(express.static('public'));
 
-    // Health check
     this.app.get('/health', (req, res) => {
       res.status(200).json({
         success: true,
@@ -48,7 +40,6 @@ class App {
   }
 
   _setupRoutes() {
-    // API routes
     const AuthRoutes = require('./routes/auth.routes');
     const SchoolRoutes = require('./routes/school.routes');
     const ClassroomRoutes = require('./routes/classroom.routes');
@@ -61,10 +52,8 @@ class App {
   }
 
   _setupErrorHandling() {
-    // 404 handler
     this.app.use(ErrorHandlerMiddleware.notFound);
 
-    // Global error handler
     this.app.use(ErrorHandlerMiddleware.handle);
   }
 

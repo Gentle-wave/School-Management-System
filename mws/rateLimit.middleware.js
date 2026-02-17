@@ -22,14 +22,14 @@ class RateLimitMiddleware {
   static strict() {
     return this.createLimiter({
       windowMs: 15 * 60 * 1000, // 15 minutes
-      max: 50, // 50 requests per window
+      max: 500, // 500 requests per window
     });
   }
 
   static auth() {
     return this.createLimiter({
       windowMs: 15 * 60 * 1000, // 15 minutes
-      max: 5, // 5 login attempts per window
+      max: 50, // 50 login attempts per window
       skipSuccessfulRequests: true,
     });
   }

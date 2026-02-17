@@ -69,19 +69,12 @@ class SeedLoader {
       // Clear existing data first (for fresh start)
       await this.clearDatabase();
 
-      // Seed users
       const users = await this._seedUsers();
-
-      // Seed schools
       const schools = await this._seedSchools();
-
-      // Seed classrooms
       const classrooms = await this._seedClassrooms(schools);
-
-      // Seed students
+      
       await this._seedStudents(schools, classrooms);
 
-      // Mark seeds as executed
       await this.markSeedsExecuted();
 
       console.log('✅ Database seeding completed successfully!');

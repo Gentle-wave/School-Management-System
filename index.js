@@ -36,20 +36,17 @@ const createNoopCache = () => ({
   },
 });
 
-// Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
   console.log('Uncaught Exception:');
   console.log(err, err.stack);
   process.exit(1);
 });
 
-// Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
   console.log('Unhandled rejection at ', promise, 'reason:', reason);
   process.exit(1);
 });
 
-// Initialize cache
 const cache = isTestEnv
   ? createNoopCache()
   : require('./cache/cache.dbh')({
@@ -57,14 +54,12 @@ const cache = isTestEnv
     url: config.dotEnv.CACHE_REDIS,
   });
 
-// Initialize MongoDB connection
 const mongoDB = isTestEnv
   ? mongoose.connection
   : require('./connect/mongo')({
     uri: config.dotEnv.MONGO_URI,
   });
 
-// Run seeds in development mode only
 if (config.dotEnv.ENV === 'development') {
   const runSeeds = async () => {
     try {
@@ -76,21 +71,16 @@ if (config.dotEnv.ENV === 'development') {
     }
   };
 
-  // Run seeds when connection is established
   if (mongoose.connection.readyState === 1) {
-    // Already connected
     runSeeds();
   } else {
-    // Wait for connection
     mongoose.connection.once('connected', runSeeds);
   }
 }
 
-// Initialize managers
 const managersLoader = new ManagersLoader({ config, cache });
 const managers = managersLoader.load();
 
-// Initialize Express app
 const appInstance = new App({ managers });
 const app = appInstance.getApp();
 

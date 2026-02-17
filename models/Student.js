@@ -89,12 +89,10 @@ const studentSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-// Virtual for full name
 studentSchema.virtual('fullName').get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
-// Virtual for age
 studentSchema.virtual('age').get(function () {
   if (!this.dateOfBirth) return null;
   const today = new Date();
@@ -107,14 +105,12 @@ studentSchema.virtual('age').get(function () {
   return age;
 });
 
-// Indexes
 studentSchema.index({ schoolId: 1, isActive: 1 });
 studentSchema.index({ classroomId: 1 });
 studentSchema.index({ studentId: 1 });
 studentSchema.index({ lastName: 1, firstName: 1 });
 studentSchema.index({ enrollmentDate: -1 });
 
-// Ensure virtuals are included in JSON
 studentSchema.set('toJSON', { virtuals: true });
 
 // Pre-save hook to generate studentId if not provided

@@ -11,13 +11,11 @@ class ClassroomManager {
   async create(data) {
     const { schoolId, name, capacity } = data;
 
-    // Verify school exists
     const school = await School.findById(schoolId);
     if (!school || !school.isActive) {
       throw new NotFoundError('School');
     }
 
-    // Check for duplicate name in same school
     const existingClassroom = await Classroom.findOne({ schoolId, name, isActive: true });
     if (existingClassroom) {
       throw new ConflictError('Classroom with this name already exists in this school');
@@ -33,7 +31,6 @@ class ClassroomManager {
 
     await classroom.save();
 
-    // Invalidate cache
     await this._invalidateCache(schoolId);
 
     return classroom;
@@ -42,7 +39,6 @@ class ClassroomManager {
   async getById(classroomId) {
     const cacheKey = `classroom:${classroomId}`;
 
-    // Try cache first
     let classroom = await this.cache.string.get({ key: cacheKey });
     if (classroom) {
       return classroom;
@@ -53,7 +49,6 @@ class ClassroomManager {
       throw new NotFoundError('Classroom');
     }
 
-    // Cache classroom data
     await this.cache.string.set({
       key: cacheKey,
       data: JSON.stringify(classroom.toObject()),
@@ -69,12 +64,10 @@ class ClassroomManager {
       throw new NotFoundError('Classroom');
     }
 
-    // Check capacity update
     if (data.capacity !== undefined && data.capacity < classroom.currentEnrollment) {
       throw new ConflictError(`Cannot set capacity below current enrollment (${classroom.currentEnrollment})`);
     }
 
-    // Check for duplicate name if name is being updated
     if (data.name && data.name !== classroom.name) {
       const existingClassroom = await Classroom.findOne({
         schoolId: classroom.schoolId,
@@ -87,7 +80,6 @@ class ClassroomManager {
       }
     }
 
-    // Update fields
     Object.keys(data).forEach(key => {
       if (data[key] !== undefined && key !== '_id' && key !== '__v' && key !== 'currentEnrollment') {
         if (typeof data[key] === 'object' && !Array.isArray(data[key])) {
@@ -100,7 +92,6 @@ class ClassroomManager {
 
     await classroom.save();
 
-    // Invalidate cache
     await this._invalidateCache(classroom.schoolId);
     await this.cache.string.delete({ key: `classroom:${classroomId}` });
 
@@ -113,7 +104,6 @@ class ClassroomManager {
       throw new NotFoundError('Classroom');
     }
 
-    // Check if classroom has students
     const Student = require('../models/Student');
     const studentCount = await Student.countDocuments({ classroomId, isActive: true });
 
@@ -124,7 +114,6 @@ class ClassroomManager {
     classroom.isActive = false;
     await classroom.save();
 
-    // Invalidate cache
     await this._invalidateCache(classroom.schoolId);
     await this.cache.string.delete({ key: `classroom:${classroomId}` });
 
@@ -195,7 +184,6 @@ class ClassroomManager {
     classroom.currentEnrollment = newEnrollment;
     await classroom.save();
 
-    // Invalidate cache
     await this._invalidateCache(classroom.schoolId);
     await this.cache.string.delete({ key: `classroom:${classroomId}` });
 
